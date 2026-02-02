@@ -4,33 +4,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Points Validation Summary</title>
+    <title>Points Summation Summary</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: transparent;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: auto;
+        }
+
+        .total-container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .total-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .total-amount {
+            font-size: 32px;
+            font-weight: 900;
+            color: #1e293b;
+            letter-spacing: -0.02em;
+        }
+
+        .total-value-wrapper {
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+        }
+
+        /* Transition for color changes */
+        #sum-display,
+        #denominator {
+            transition: color 0.3s ease;
+        }
+    </style>
 </head>
 
 <body>
 
     <div class="container">
-        <header>
-        </header>
-
-
-
-        <div class="total-container">
-            <span class="total-label">Total Summation</span>
-            <div class="total-value-wrapper">
-                <span id="sum-display" class="total-amount">0</span>
-                <span class="total-denominator">/ 100</span>
-            </div>
+        <div class="total-container" style="margin-bottom: 12px;">
+            <span class="total-label">Total Points Available</span>
+            <div id="points-available" class="total-amount">100</div>
         </div>
 
-        <div id="instruction-container">
+        <div class="total-container">
+            <span class="total-label">Total Points Allocated</span>
+            <div class="total-value-wrapper">
+                <span id="sum-display" class="total-amount">0</span>
+                <span id="denominator" style="font-size: 14px; font-weight: 700; color: #cbd5e1;">/ 100</span>
+            </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        /**
+         * Updates the UI based on a numerical total
+         */
+        function updatePoints(allocatedSum) {
+            const totalMax = 100;
+            const available = totalMax - allocatedSum;
+
+            const sumDisplay = document.getElementById('sum-display');
+            const denominator = document.getElementById('denominator');
+            const availableDisplay = document.getElementById('points-available');
+
+            // Set text values
+            sumDisplay.innerText = allocatedSum;
+            availableDisplay.innerText = available;
+
+            // Apply Green if exactly 100, Red otherwise
+            if (allocatedSum === 100) {
+                const successColor = "#10b981"; // Emerald Green
+                sumDisplay.style.color = successColor;
+                denominator.style.color = successColor;
+            } else {
+                const errorColor = "#ef4444"; // Red
+                sumDisplay.style.color = errorColor;
+                denominator.style.color = errorColor;
+            }
+        }
+
+        /**
+         * Parses the URL for ?points=1,2,3...
+         */
+        window.onload = function () {
+            const params = new URLSearchParams(window.location.search);
+            const pointsString = params.get('points');
+
+            if (pointsString) {
+                // Convert comma-separated string into an array of numbers
+                const pointsArray = pointsString.split(',')
+                    .map(p => parseFloat(p.trim()))
+                    .filter(p => !isNaN(p)); // Remove any bad data
+
+                // Sum the numbers
+                const totalCalculated = pointsArray.reduce((acc, curr) => acc + curr, 0);
+
+                updatePoints(totalCalculated);
+            } else {
+                // Default if no points are provided
+                updatePoints(0);
+            }
+        };
+    </script>
 </body>
 
 </html>
